@@ -1,0 +1,16 @@
+{
+  "build": {
+    "command": "npm run build",
+    "output": "dist"
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://velocity-api.your-subdomain.workers.dev/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
