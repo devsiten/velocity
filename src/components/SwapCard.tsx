@@ -4,6 +4,8 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useTradeStore, usePriceStore, useUIStore } from '../lib/store';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
 
+const API_BASE = 'https://velocity-api.devsiten.workers.dev';
+
 export const SwapCard = () => {
     const { connected, publicKey, signTransaction } = useWallet();
     const { setVisible } = useWalletModal();
@@ -15,7 +17,7 @@ export const SwapCard = () => {
     const [swapStatus, setSwapStatus] = useState<string | null>(null);
     const pollRef = useRef<NodeJS.Timeout>();
 
-    // Fetch quote directly from Jupiter API (no CORS issues, free)
+    // Fetch quote from backend API
     const fetchQuote = useCallback(async () => {
         if (!inputToken || !outputToken || !inputAmount || parseFloat(inputAmount) <= 0) {
             setQuote(null);
@@ -25,24 +27,37 @@ export const SwapCard = () => {
         setQuoteLoading(true);
         try {
             const amt = Math.floor(parseFloat(inputAmount) * Math.pow(10, inputToken.decimals)).toString();
+            const userKey = publicKey?.toBase58() || '11111111111111111111111111111111';
 
-            // Call Jupiter Quote API directly
-            const res = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${inputToken.address}&outputMint=${outputToken.address}&amount=${amt}&slippageBps=100`);
-            const q = await res.json();
+            const res = await fetch(`${API_BASE}/api/v1/trade/quote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    inputMint: inputToken.address,
+                    outputMint: outputToken.address,
+                    amount: amt,
+                    slippageBps: 100,
+                    userPublicKey: userKey,
+                }),
+            });
 
-            if (q.error) {
-                throw new Error(q.error);
+            const data = await res.json();
+
+            if (data.success) {
+                setQuote(data.data);
+                setOutputAmount((Number(data.data.outAmount) / Math.pow(10, outputToken.decimals)).toFixed(6));
+            } else {
+                console.error('Quote error:', data.error);
+                setQuote(null);
+                setOutputAmount('');
             }
-
-            setQuote(q);
-            setOutputAmount((Number(q.outAmount) / Math.pow(10, outputToken.decimals)).toFixed(6));
         } catch (e) {
             console.error('Quote error:', e);
             setQuote(null);
             setOutputAmount('');
         }
         setQuoteLoading(false);
-    }, [inputToken, outputToken, inputAmount, setQuote, setOutputAmount, setQuoteLoading]);
+    }, [inputToken, outputToken, inputAmount, publicKey, setQuote, setOutputAmount, setQuoteLoading]);
 
     // Debounced quote fetch when input changes
     useEffect(() => {
@@ -64,26 +79,30 @@ export const SwapCard = () => {
         setSwapStatus('Building transaction...');
 
         try {
-            // Get swap transaction from Jupiter
-            const swapRes = await fetch('https://quote-api.jup.ag/v6/swap', {
+            // Build swap via backend
+            const swapRes = await fetch(`${API_BASE}/api/v1/trade/swap`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Public-Key': publicKey.toBase58(),
+                },
                 body: JSON.stringify({
                     quoteResponse: quote,
                     userPublicKey: publicKey.toBase58(),
-                    wrapAndUnwrapSol: true,
+                    inputSymbol: inputToken.symbol,
+                    outputSymbol: outputToken.symbol,
                 }),
             });
 
             const swapData = await swapRes.json();
 
-            if (swapData.error) {
-                throw new Error(swapData.error);
+            if (!swapData.success) {
+                throw new Error(swapData.error || 'Swap build failed');
             }
 
             setSwapStatus('Waiting for signature...');
 
-            const swapTransactionBuf = Buffer.from(swapData.swapTransaction, 'base64');
+            const swapTransactionBuf = Buffer.from(swapData.data.swapTransaction, 'base64');
             const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
             const signedTransaction = await signTransaction(transaction);
 
@@ -98,6 +117,23 @@ export const SwapCard = () => {
 
             setSwapStatus('Confirming...');
             await connection.confirmTransaction(txSignature, 'confirmed');
+
+            // Confirm with backend for points
+            try {
+                await fetch(`${API_BASE}/api/v1/trade/confirm`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Public-Key': publicKey.toBase58(),
+                    },
+                    body: JSON.stringify({
+                        tradeId: swapData.data.tradeId,
+                        txSignature,
+                    }),
+                });
+            } catch (e) {
+                // Points confirmation failed, but swap succeeded
+            }
 
             setSwapStatus(`Success! TX: ${txSignature.slice(0, 8)}...`);
             setInputAmount('');

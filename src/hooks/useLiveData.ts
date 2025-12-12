@@ -2,7 +2,17 @@
 import { useEffect, useRef } from 'react';
 import { usePriceStore, useTrendingStore } from '../lib/store';
 
-// Use Jupiter API for prices (no CORS issues, no rate limits)
+const API_BASE = 'https://velocity-api.devsiten.workers.dev';
+
+const TRACKED_MINTS = [
+    'So11111111111111111111111111111111111111112',
+    'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN',
+    'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+    'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So',
+    'J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn',
+];
+
 export function useLivePrices(interval = 10000) {
     const { setPrices, setLoading } = usePriceStore();
     const ref = useRef<NodeJS.Timeout>();
@@ -10,34 +20,22 @@ export function useLivePrices(interval = 10000) {
     useEffect(() => {
         const fetchPrices = async () => {
             try {
-                // Jupiter Price API - free and no CORS issues
-                const mints = [
-                    'So11111111111111111111111111111111111111112', // SOL
-                    'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
-                    'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN', // JUP
-                    'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK
-                    'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', // USDT
-                    'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So', // mSOL
-                    'J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn', // JitoSOL
-                ];
-
-                const res = await fetch(`https://price.jup.ag/v6/price?ids=${mints.join(',')}`);
+                const res = await fetch(`${API_BASE}/api/v1/trade/prices`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mints: TRACKED_MINTS }),
+                });
                 const data = await res.json();
-
-                const prices: Record<string, { price: number; change24h: number }> = {};
-
-                for (const mint of mints) {
-                    if (data.data && data.data[mint]) {
-                        prices[mint] = {
-                            price: data.data[mint].price || 0,
-                            change24h: 0, // Jupiter doesn't provide 24h change in this endpoint
-                        };
+                if (data.success) {
+                    // Convert prices object to store format
+                    const formatted: Record<string, { price: number; change24h: number }> = {};
+                    for (const [mint, price] of Object.entries(data.data.prices)) {
+                        formatted[mint] = { price: price as number, change24h: 0 };
                     }
+                    setPrices(formatted);
                 }
-
-                setPrices(prices);
             } catch (e) {
-                console.error('Jupiter price fetch error:', e);
+                console.error('Price fetch error:', e);
             }
             setLoading(false);
         };
@@ -48,57 +46,35 @@ export function useLivePrices(interval = 10000) {
     }, [interval, setPrices, setLoading]);
 }
 
-export function useTrendingTokens(interval = 60000) {
+export function useTrendingTokens(interval = 30000) {
     const { setTokens, setLoading } = useTrendingStore();
     const ref = useRef<NodeJS.Timeout>();
 
     useEffect(() => {
         const fetchTrending = async () => {
             try {
-                // Jupiter Verified Token List - Top tokens by volume
-                const res = await fetch('https://token.jup.ag/strict');
-                const allTokens = await res.json();
+                const res = await fetch(`${API_BASE}/api/v1/trade/trending`);
+                const data = await res.json();
+                if (data.success) {
+                    // Get prices for trending tokens
+                    const mints = data.data.map((t: any) => t.address);
+                    const priceRes = await fetch(`${API_BASE}/api/v1/trade/prices`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mints }),
+                    });
+                    const priceData = await priceRes.json();
 
-                // Get top 10 popular tokens
-                const popularMints = [
-                    'So11111111111111111111111111111111111111112', // SOL
-                    'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
-                    'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN', // JUP
-                    'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK
-                    'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So', // mSOL
-                    'J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn', // JitoSOL
-                    'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', // USDT
-                    'RLBxxFkseAZ4RgJH3Sqn8jXxhmGoz9jWxDNJMh8pL7a', // RAY
-                    'orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE', // ORCA
-                    'HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3', // PYTH
-                ];
+                    // Merge prices into tokens
+                    const tokensWithPrices = data.data.map((token: any) => ({
+                        ...token,
+                        price: priceData.success ? priceData.data.prices[token.address] || 0 : 0,
+                    }));
 
-                // Get prices for these tokens
-                const priceRes = await fetch(`https://price.jup.ag/v6/price?ids=${popularMints.join(',')}`);
-                const priceData = await priceRes.json();
-
-                const tokens = popularMints.map((mint, index) => {
-                    const tokenInfo = allTokens.find((t: any) => t.address === mint);
-                    const price = priceData.data?.[mint]?.price || 0;
-
-                    return {
-                        rank: index + 1,
-                        id: mint,
-                        address: mint,
-                        symbol: tokenInfo?.symbol || 'UNKNOWN',
-                        name: tokenInfo?.name || 'Unknown Token',
-                        logoURI: tokenInfo?.logoURI || 'https://via.placeholder.com/28',
-                        decimals: tokenInfo?.decimals || 9,
-                        price: price,
-                        change24h: 0, // Jupiter price API doesn't provide 24h change
-                        volume24h: 0,
-                        marketCap: 0,
-                    };
-                });
-
-                setTokens(tokens);
+                    setTokens(tokensWithPrices);
+                }
             } catch (e) {
-                console.error('Jupiter trending fetch error:', e);
+                console.error('Trending fetch error:', e);
             }
             setLoading(false);
         };
