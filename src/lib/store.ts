@@ -10,7 +10,7 @@ interface TradeState {
   quote: QuoteResponse | null;
   isQuoteLoading: boolean;
   isSwapping: boolean;
-  
+
   setInputToken: (token: Token | null) => void;
   setOutputToken: (token: Token | null) => void;
   setInputAmount: (amount: string) => void;
@@ -38,17 +38,17 @@ export const useTradeStore = create<TradeState>((set, get) => ({
   setQuote: (quote) => set({ quote }),
   setIsQuoteLoading: (loading) => set({ isQuoteLoading: loading }),
   setIsSwapping: (swapping) => set({ isSwapping: swapping }),
-  
+
   swapTokens: () => {
     const { inputToken, outputToken } = get();
-    set({ 
-      inputToken: outputToken, 
-      outputToken: inputToken, 
+    set({
+      inputToken: outputToken,
+      outputToken: inputToken,
       inputAmount: '',
       quote: null,
     });
   },
-  
+
   reset: () => set({
     inputToken: SOL_TOKEN,
     outputToken: null,
@@ -69,12 +69,12 @@ interface PriceState {
 export const usePriceStore = create<PriceState>((set, get) => ({
   prices: {},
   lastUpdate: 0,
-  
-  setPrices: (prices) => set({ 
-    prices: { ...get().prices, ...prices }, 
-    lastUpdate: Date.now() 
+
+  setPrices: (prices) => set({
+    prices: { ...get().prices, ...prices },
+    lastUpdate: Date.now()
   }),
-  
+
   getPrice: (mint) => get().prices[mint] ?? null,
 }));
 
@@ -82,7 +82,7 @@ interface UserState {
   points: UserPoints | null;
   strategies: Strategy[];
   isLoading: boolean;
-  
+
   setPoints: (points: UserPoints | null) => void;
   setStrategies: (strategies: Strategy[]) => void;
   addStrategy: (strategy: Strategy) => void;
@@ -98,44 +98,48 @@ export const useUserStore = create<UserState>((set, get) => ({
 
   setPoints: (points) => set({ points }),
   setStrategies: (strategies) => set({ strategies }),
-  
-  addStrategy: (strategy) => set({ 
-    strategies: [strategy, ...get().strategies] 
+
+  addStrategy: (strategy) => set({
+    strategies: [strategy, ...get().strategies]
   }),
-  
+
   updateStrategy: (id, updates) => set({
-    strategies: get().strategies.map(s => 
+    strategies: get().strategies.map(s =>
       s.id === id ? { ...s, ...updates } : s
     ),
   }),
-  
+
   removeStrategy: (id) => set({
     strategies: get().strategies.filter(s => s.id !== id),
   }),
-  
+
   setIsLoading: (loading) => set({ isLoading: loading }),
 }));
 
 interface UIState {
-  activeTab: 'trade' | 'strategies' | 'leaderboard';
+  activeTab: 'swap' | 'stake' | 'lend' | 'borrow';
   isTokenSearchOpen: boolean;
   tokenSearchMode: 'input' | 'output';
   isSettingsOpen: boolean;
-  
-  setActiveTab: (tab: 'trade' | 'strategies' | 'leaderboard') => void;
+  isSidebarOpen: boolean;
+
+  setActiveTab: (tab: 'swap' | 'stake' | 'lend' | 'borrow') => void;
   openTokenSearch: (mode: 'input' | 'output') => void;
   closeTokenSearch: () => void;
   setIsSettingsOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
 }
 
-export const useUIStore = create<UIState>((set) => ({
-  activeTab: 'trade',
+export const useUIStore = create<UIState>((set, get) => ({
+  activeTab: 'swap',
   isTokenSearchOpen: false,
   tokenSearchMode: 'input',
   isSettingsOpen: false,
+  isSidebarOpen: false,
 
   setActiveTab: (tab) => set({ activeTab: tab }),
   openTokenSearch: (mode) => set({ isTokenSearchOpen: true, tokenSearchMode: mode }),
   closeTokenSearch: () => set({ isTokenSearchOpen: false }),
   setIsSettingsOpen: (open) => set({ isSettingsOpen: open }),
+  toggleSidebar: () => set({ isSidebarOpen: !get().isSidebarOpen }),
 }));
