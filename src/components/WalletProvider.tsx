@@ -1,7 +1,7 @@
-import { FC, ReactNode, useMemo, useCallback, useEffect } from 'react';
+import { FC, ReactNode, useMemo, useCallback } from 'react';
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter, SolflareWalletAdapter, BackpackWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { clusterApiUrl } from '@solana/web3.js';
 
@@ -13,7 +13,7 @@ interface Props {
 
 export const WalletProvider: FC<Props> = ({ children }) => {
   const network = WalletAdapterNetwork.Mainnet;
-  const endpoint = useMemo(() => 
+  const endpoint = useMemo(() =>
     import.meta.env.VITE_RPC_ENDPOINT || clusterApiUrl(network),
     [network]
   );
@@ -21,7 +21,6 @@ export const WalletProvider: FC<Props> = ({ children }) => {
   const wallets = useMemo(() => [
     new PhantomWalletAdapter(),
     new SolflareWalletAdapter(),
-    new BackpackWalletAdapter(),
   ], []);
 
   const onError = useCallback((error: Error) => {

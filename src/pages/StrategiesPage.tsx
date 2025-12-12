@@ -4,7 +4,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { Strategy } from '../types/shared';
 import { useUserStore } from '../lib/store';
 import { api } from '../lib/api';
-import { formatAmount, shortenAddress, getExplorerUrl } from '../lib/constants';
+import { formatAmount, getExplorerUrl } from '../lib/constants';
 import toast from 'react-hot-toast';
 
 export const StrategiesPage: FC = () => {
@@ -45,7 +45,7 @@ export const StrategiesPage: FC = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this strategy?')) return;
-    
+
     try {
       await api.deleteStrategy(id);
       removeStrategy(id);
@@ -60,8 +60,8 @@ export const StrategiesPage: FC = () => {
       <div className="max-w-2xl mx-auto text-center py-16">
         <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-bg-secondary flex items-center justify-center">
           <svg className="w-8 h-8 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" 
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
             />
           </svg>
         </div>
@@ -104,8 +104,8 @@ export const StrategiesPage: FC = () => {
         <div className="card p-12 text-center">
           <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-bg-tertiary flex items-center justify-center">
             <svg className="w-6 h-6 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
-                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" 
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
               />
             </svg>
           </div>
@@ -162,10 +162,10 @@ const StrategyCard: FC<{
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center
             ${strategy.type === 'buy_dip' ? 'bg-accent-primary/20' : 'bg-accent-danger/20'}`}>
-            <svg 
-              className={`w-5 h-5 ${strategy.type === 'buy_dip' ? 'text-accent-primary' : 'text-accent-danger'}`} 
-              fill="none" 
-              viewBox="0 0 24 24" 
+            <svg
+              className={`w-5 h-5 ${strategy.type === 'buy_dip' ? 'text-accent-primary' : 'text-accent-danger'}`}
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
             >
               {strategy.type === 'buy_dip' ? (
@@ -175,7 +175,7 @@ const StrategyCard: FC<{
               )}
             </svg>
           </div>
-          
+
           <div>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-text-primary">{strategy.tokenSymbol}</span>
@@ -199,7 +199,7 @@ const StrategyCard: FC<{
               {strategy.status === 'active' ? 'Pause' : 'Activate'}
             </button>
           )}
-          
+
           {strategy.txSignature && (
             <a
               href={getExplorerUrl(strategy.txSignature)}
@@ -210,7 +210,7 @@ const StrategyCard: FC<{
               View TX
             </a>
           )}
-          
+
           <button onClick={onDelete} className="btn btn-ghost text-sm text-accent-danger">
             Delete
           </button>
@@ -257,7 +257,7 @@ const CreateStrategyModal: FC<{
 
     try {
       const amountLamports = Math.floor(parseFloat(amount) * 1e9).toString();
-      
+
       await api.createStrategy({
         tokenMint,
         tokenSymbol: tokenSymbol || 'Unknown',
@@ -279,7 +279,7 @@ const CreateStrategyModal: FC<{
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      
+
       <div className="relative card p-6 w-full max-w-md animate-slide-up">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-text-primary">New Strategy</h3>
@@ -298,8 +298,8 @@ const CreateStrategyModal: FC<{
                 type="button"
                 onClick={() => setType('buy_dip')}
                 className={`flex-1 py-3 rounded-lg font-medium transition-colors
-                  ${type === 'buy_dip' 
-                    ? 'bg-accent-primary text-bg-primary' 
+                  ${type === 'buy_dip'
+                    ? 'bg-accent-primary text-bg-primary'
                     : 'bg-bg-tertiary text-text-secondary hover:bg-bg-elevated'
                   }`}
               >
@@ -309,8 +309,8 @@ const CreateStrategyModal: FC<{
                 type="button"
                 onClick={() => setType('take_profit')}
                 className={`flex-1 py-3 rounded-lg font-medium transition-colors
-                  ${type === 'take_profit' 
-                    ? 'bg-accent-danger text-white' 
+                  ${type === 'take_profit'
+                    ? 'bg-accent-danger text-white'
                     : 'bg-bg-tertiary text-text-secondary hover:bg-bg-elevated'
                   }`}
               >

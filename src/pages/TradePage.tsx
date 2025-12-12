@@ -1,11 +1,11 @@
 import { FC } from 'react';
 import { useTradeStore } from '../lib/store';
 import { useQuote } from '../hooks/useQuote';
-import { TokenInput } from './TokenInput';
-import { SwapButton } from './SwapButton';
-import { SlippageSelector } from './SlippageSelector';
-import { QuoteDetails } from './QuoteDetails';
-import { PresetAmounts } from './PresetAmounts';
+import { TokenInput } from '../components/TokenInput';
+import { SwapButton } from '../components/SwapButton';
+import { SlippageSelector } from '../components/SlippageSelector';
+import { QuoteDetails } from '../components/QuoteDetails';
+import { PresetAmounts } from '../components/PresetAmounts';
 import { formatAmount } from '../lib/constants';
 
 export const TradePage: FC = () => {
@@ -49,18 +49,18 @@ export const TradePage: FC = () => {
                 hover:bg-bg-elevated hover:border-accent-primary/50 transition-all duration-200
                 group"
             >
-              <svg 
+              <svg
                 className="w-5 h-5 text-text-muted group-hover:text-accent-primary 
-                  transition-colors rotate-0 group-hover:rotate-180 duration-300" 
-                fill="none" 
-                viewBox="0 0 24 24" 
+                  transition-colors rotate-0 group-hover:rotate-180 duration-300"
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" 
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
                 />
               </svg>
             </button>

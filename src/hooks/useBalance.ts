@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { SOL_MINT } from '../lib/constants';
+
+// SPL Token Program ID - hardcoded to avoid @solana/spl-token dependency
+const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
 
 interface TokenBalance {
   mint: string;
@@ -37,7 +39,7 @@ export function useBalance() {
       setSolBalance(solBal / LAMPORTS_PER_SOL);
 
       const balances = new Map<string, TokenBalance>();
-      
+
       balances.set(SOL_MINT, {
         mint: SOL_MINT,
         balance: solBal.toString(),
@@ -65,7 +67,7 @@ export function useBalance() {
 
   useEffect(() => {
     fetchBalances();
-    
+
     const interval = setInterval(fetchBalances, 30000);
     return () => clearInterval(interval);
   }, [fetchBalances]);

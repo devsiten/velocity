@@ -63,17 +63,7 @@ export function useSwap() {
       const { pointsEarned } = await api.confirmTrade(tradeId, signature);
 
       toast.success(
-        <div className="flex flex-col gap-1">
-          <span>Swap successful! +{pointsEarned} points</span>
-          <a 
-            href={getExplorerUrl(signature)} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-accent-primary text-sm hover:underline"
-          >
-            View on explorer →
-          </a>
-        </div>,
+        `Swap successful! +${pointsEarned} points. View on explorer: ${getExplorerUrl(signature)}`,
         { id: toastId, duration: 6000 }
       );
 

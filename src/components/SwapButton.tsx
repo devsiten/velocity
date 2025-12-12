@@ -6,15 +6,15 @@ import { useSwap } from '../hooks/useSwap';
 import { useBalance } from '../hooks/useBalance';
 
 export const SwapButton: FC = () => {
-  const { connected, publicKey } = useWallet();
+  const { connected } = useWallet();
   const { setVisible } = useWalletModal();
-  const { 
-    inputToken, 
-    outputToken, 
-    inputAmount, 
-    quote, 
-    isQuoteLoading, 
-    isSwapping 
+  const {
+    inputToken,
+    outputToken,
+    inputAmount,
+    quote,
+    isQuoteLoading,
+    isSwapping
   } = useTradeStore();
   const { executeSwap } = useSwap();
   const { getBalance } = useBalance();
@@ -55,7 +55,7 @@ export const SwapButton: FC = () => {
   } else {
     const balance = getBalance(inputToken.address);
     const inputLamports = Math.floor(parseFloat(inputAmount) * Math.pow(10, inputToken.decimals));
-    
+
     if (BigInt(inputLamports) > BigInt(balance)) {
       buttonText = `Insufficient ${inputToken.symbol}`;
       isDisabled = true;
@@ -67,8 +67,8 @@ export const SwapButton: FC = () => {
       onClick={executeSwap}
       disabled={isDisabled}
       className={`w-full py-4 text-lg font-semibold rounded-xl transition-all duration-200
-        ${isDisabled 
-          ? 'bg-bg-elevated text-text-muted cursor-not-allowed' 
+        ${isDisabled
+          ? 'bg-bg-elevated text-text-muted cursor-not-allowed'
           : 'btn-primary shadow-glow-sm hover:shadow-glow-md'
         }
         ${isSwapping ? 'animate-pulse' : ''}
@@ -77,16 +77,16 @@ export const SwapButton: FC = () => {
       {isSwapping && (
         <span className="inline-flex items-center gap-2">
           <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-            <circle 
-              className="opacity-25" 
-              cx="12" cy="12" r="10" 
-              stroke="currentColor" 
+            <circle
+              className="opacity-25"
+              cx="12" cy="12" r="10"
+              stroke="currentColor"
               strokeWidth="4"
               fill="none"
             />
-            <path 
-              className="opacity-75" 
-              fill="currentColor" 
+            <path
+              className="opacity-75"
+              fill="currentColor"
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
             />
           </svg>
