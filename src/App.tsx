@@ -1,13 +1,10 @@
 import { FC, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
-import { InfoPanels } from './components/InfoPanels';
 import { TokenSearch } from './components/TokenSearch';
 import { TradePage } from './pages/TradePage';
-import { StakePage } from './pages/StakePage';
-import { LendPage } from './pages/LendPage';
-import { BorrowPage } from './pages/BorrowPage';
+import { StrategiesPage } from './pages/StrategiesPage';
+import { LeaderboardPage } from './pages/LeaderboardPage';
 import { useUIStore } from './lib/store';
 import { api } from './lib/api';
 
@@ -20,40 +17,37 @@ const App: FC = () => {
   }, [publicKey]);
 
   return (
-    <div className="min-h-screen bg-[#010409] text-white">
-      {/* Background effects */}
+    <div className="min-h-screen bg-bg-primary">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#00ffa3]/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#00d4aa]/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-secondary/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <Sidebar />
+      <Header />
 
-        {/* Main content area */}
-        <div className="flex-1 lg:ml-0">
-          {/* Header */}
-          <Header />
+      <main className="relative max-w-6xl mx-auto px-4 py-8">
+        {activeTab === 'trade' && <TradePage />}
+        {activeTab === 'strategies' && <StrategiesPage />}
+        {activeTab === 'leaderboard' && <LeaderboardPage />}
+      </main>
 
-          {/* Main layout with info panels */}
-          <main className="relative flex justify-center gap-6 px-4 lg:px-8 py-8">
-            {/* Center content */}
-            <div className="flex-1 max-w-lg">
-              {activeTab === 'swap' && <TradePage />}
-              {activeTab === 'stake' && <StakePage />}
-              {activeTab === 'lend' && <LendPage />}
-              {activeTab === 'borrow' && <BorrowPage />}
-            </div>
-
-            {/* Right info panels */}
-            <InfoPanels />
-          </main>
-        </div>
-      </div>
-
-      {/* Token Search Modal */}
       <TokenSearch />
+
+      <footer className="relative border-t border-border-primary mt-16">
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-text-muted text-sm">
+              <img src="/velocity.svg" alt="Velocity" className="w-5 h-5" />
+              <span>Velocity Trade</span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-text-muted">
+              <a href="#" className="hover:text-text-primary transition-colors">Docs</a>
+              <a href="#" className="hover:text-text-primary transition-colors">Twitter</a>
+              <a href="#" className="hover:text-text-primary transition-colors">Discord</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

@@ -23,9 +23,9 @@ export const SwapButton: FC = () => {
     return (
       <button
         onClick={() => setVisible(true)}
-        className="w-full py-4 bg-[#1e2530] hover:bg-[#2d3748] text-white text-lg font-semibold rounded-xl transition-colors"
+        className="w-full btn btn-primary py-4 text-lg font-semibold"
       >
-        Connect
+        Connect Wallet
       </button>
     );
   }
@@ -68,8 +68,8 @@ export const SwapButton: FC = () => {
       disabled={isDisabled}
       className={`w-full py-4 text-lg font-semibold rounded-xl transition-all duration-200
         ${isDisabled
-          ? 'bg-[#1e2530] text-[#8b949e] cursor-not-allowed'
-          : 'bg-gradient-to-r from-[#00ffa3] to-[#00d4aa] text-black hover:opacity-90'
+          ? 'bg-bg-elevated text-text-muted cursor-not-allowed'
+          : 'btn-primary shadow-glow-sm hover:shadow-glow-md'
         }
         ${isSwapping ? 'animate-pulse' : ''}
       `}
