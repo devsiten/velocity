@@ -4,16 +4,16 @@
 
 @layer base {
   * {
-    @apply border-border-primary;
+    @apply border-[#25252b];
   }
 
   body {
-    @apply bg-bg-primary text-text-primary font-sans;
+    @apply bg-[#0b0b0e] text-white font-sans;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
   ::selection {
-    @apply bg-accent-primary/30 text-white;
+    @apply bg-[#c7f284]/30 text-white;
   }
 
   ::-webkit-scrollbar {
@@ -21,15 +21,15 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-bg-secondary;
+    @apply bg-[#131318];
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-border-secondary rounded-full;
+    @apply bg-[#25252b] rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-text-muted;
+    @apply bg-[#3a3a4a];
   }
 
   input[type='number']::-webkit-inner-spin-button,
@@ -46,97 +46,36 @@
 @layer components {
   .btn {
     @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-primary;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0b0b0e];
     @apply disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-primary {
-    @apply bg-accent-primary text-bg-primary hover:bg-accent-secondary;
-    @apply focus:ring-accent-primary;
+    @apply bg-[#c7f284] text-[#0b0b0e] hover:bg-[#a8d96f];
+    @apply focus:ring-[#c7f284];
   }
 
   .btn-secondary {
-    @apply bg-bg-elevated text-text-primary hover:bg-border-primary;
-    @apply border border-border-primary;
-    @apply focus:ring-border-secondary;
-  }
-
-  .btn-danger {
-    @apply bg-accent-danger/20 text-accent-danger hover:bg-accent-danger/30;
-    @apply border border-accent-danger/30;
-  }
-
-  .btn-ghost {
-    @apply text-text-secondary hover:text-text-primary hover:bg-bg-elevated;
+    @apply bg-[#1b1b1f] text-white hover:bg-[#25252b];
+    @apply border border-[#25252b];
   }
 
   .card {
-    @apply bg-bg-secondary border border-border-primary rounded-xl;
+    @apply bg-[#131318] border border-[#25252b] rounded-xl;
     @apply shadow-lg backdrop-blur-sm;
   }
 
   .input {
-    @apply w-full px-4 py-3 bg-bg-tertiary border border-border-primary rounded-lg;
-    @apply text-text-primary placeholder-text-muted;
-    @apply focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/50;
+    @apply w-full px-4 py-3 bg-[#1b1b1f] border border-[#25252b] rounded-lg;
+    @apply text-white placeholder-[#6b7280];
+    @apply focus:outline-none focus:border-[#c7f284] focus:ring-1 focus:ring-[#c7f284]/50;
     @apply transition-colors duration-200;
-  }
-
-  .input-lg {
-    @apply text-2xl font-mono font-semibold py-4;
-  }
-
-  .label {
-    @apply text-sm font-medium text-text-secondary mb-2 block;
-  }
-
-  .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-  }
-
-  .badge-success {
-    @apply bg-accent-primary/20 text-accent-primary;
-  }
-
-  .badge-warning {
-    @apply bg-accent-warning/20 text-accent-warning;
-  }
-
-  .badge-danger {
-    @apply bg-accent-danger/20 text-accent-danger;
-  }
-
-  .badge-info {
-    @apply bg-accent-info/20 text-accent-info;
-  }
-
-  .divider {
-    @apply border-t border-border-primary my-4;
-  }
-
-  .shimmer {
-    @apply animate-pulse bg-gradient-to-r from-bg-tertiary via-bg-elevated to-bg-tertiary;
-    background-size: 200% 100%;
-  }
-
-  .glow-effect {
-    @apply relative;
-  }
-
-  .glow-effect::before {
-    content: '';
-    @apply absolute inset-0 rounded-lg opacity-0 transition-opacity duration-300;
-    background: radial-gradient(circle at center, rgba(0, 255, 136, 0.1), transparent 70%);
-  }
-
-  .glow-effect:hover::before {
-    @apply opacity-100;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-gradient-to-r from-accent-primary to-accent-secondary bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#c7f284] to-[#a8d96f] bg-clip-text text-transparent;
   }
 
   .scrollbar-hide {
@@ -149,11 +88,7 @@
   }
 
   .glass {
-    @apply bg-bg-secondary/80 backdrop-blur-xl;
-  }
-
-  .mono {
-    @apply font-mono tracking-tight;
+    @apply bg-[#131318]/80 backdrop-blur-xl;
   }
 }
 
@@ -162,9 +97,9 @@
 }
 
 .wallet-adapter-modal-wrapper {
-  @apply bg-bg-primary !important;
+  @apply bg-[#0b0b0e] !important;
 }
 
 .wallet-adapter-modal-container {
-  @apply bg-bg-secondary border border-border-primary rounded-xl !important;
+  @apply bg-[#131318] border border-[#25252b] rounded-xl !important;
 }

@@ -1,141 +1,102 @@
 import { create } from 'zustand';
-import { Token, QuoteResponse, Strategy, UserPoints } from '../types/shared';
-import { SOL_TOKEN } from './constants';
 
-interface TradeState {
-  inputToken: Token | null;
-  outputToken: Token | null;
-  inputAmount: string;
-  slippageBps: number;
-  quote: QuoteResponse | null;
-  isQuoteLoading: boolean;
-  isSwapping: boolean;
-  
-  setInputToken: (token: Token | null) => void;
-  setOutputToken: (token: Token | null) => void;
-  setInputAmount: (amount: string) => void;
-  setSlippageBps: (bps: number) => void;
-  setQuote: (quote: QuoteResponse | null) => void;
-  setIsQuoteLoading: (loading: boolean) => void;
-  setIsSwapping: (swapping: boolean) => void;
-  swapTokens: () => void;
-  reset: () => void;
+export interface Token {
+  address: string;
+  symbol: string;
+  name: string;
+  decimals: number;
+  logoURI: string;
 }
 
-export const useTradeStore = create<TradeState>((set, get) => ({
-  inputToken: SOL_TOKEN,
-  outputToken: null,
+interface PriceStore {
+  prices: Record<string, { price: number; change24h: number }>;
+  isLoading: boolean;
+  setPrices: (p: Record<string, { price: number; change24h: number }>) => void;
+  setLoading: (l: boolean) => void;
+}
+
+export const usePriceStore = create<PriceStore>((set) => ({
+  prices: {},
+  isLoading: true,
+  setPrices: (prices) => set((s) => ({ prices: { ...s.prices, ...prices }, isLoading: false })),
+  setLoading: (isLoading) => set({ isLoading }),
+}));
+
+interface TrendingStore {
+  tokens: any[];
+  isLoading: boolean;
+  setTokens: (t: any[]) => void;
+  setLoading: (l: boolean) => void;
+}
+
+export const useTrendingStore = create<TrendingStore>((set) => ({
+  tokens: [],
+  isLoading: true,
+  setTokens: (tokens) => set({ tokens, isLoading: false }),
+  setLoading: (isLoading) => set({ isLoading }),
+}));
+
+interface TradeStore {
+  inputToken: Token;
+  outputToken: Token;
+  inputAmount: string;
+  outputAmount: string;
+  quote: any;
+  isQuoteLoading: boolean;
+  setInputToken: (t: Token) => void;
+  setOutputToken: (t: Token) => void;
+  setInputAmount: (a: string) => void;
+  setOutputAmount: (a: string) => void;
+  setQuote: (q: any) => void;
+  setQuoteLoading: (l: boolean) => void;
+  swapTokens: () => void;
+}
+
+export const useTradeStore = create<TradeStore>((set, get) => ({
+  inputToken: {
+    address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    symbol: 'USDC',
+    name: 'USD Coin',
+    decimals: 6,
+    logoURI: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png',
+  },
+  outputToken: {
+    address: 'So11111111111111111111111111111111111111112',
+    symbol: 'SOL',
+    name: 'Solana',
+    decimals: 9,
+    logoURI: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
+  },
   inputAmount: '',
-  slippageBps: 100,
+  outputAmount: '',
   quote: null,
   isQuoteLoading: false,
-  isSwapping: false,
-
-  setInputToken: (token) => set({ inputToken: token, quote: null }),
-  setOutputToken: (token) => set({ outputToken: token, quote: null }),
-  setInputAmount: (amount) => set({ inputAmount: amount, quote: null }),
-  setSlippageBps: (bps) => set({ slippageBps: bps }),
+  setInputToken: (inputToken) => set({ inputToken, quote: null }),
+  setOutputToken: (outputToken) => set({ outputToken, quote: null }),
+  setInputAmount: (inputAmount) => set({ inputAmount }),
+  setOutputAmount: (outputAmount) => set({ outputAmount }),
   setQuote: (quote) => set({ quote }),
-  setIsQuoteLoading: (loading) => set({ isQuoteLoading: loading }),
-  setIsSwapping: (swapping) => set({ isSwapping: swapping }),
-  
+  setQuoteLoading: (isQuoteLoading) => set({ isQuoteLoading }),
   swapTokens: () => {
     const { inputToken, outputToken } = get();
-    set({ 
-      inputToken: outputToken, 
-      outputToken: inputToken, 
-      inputAmount: '',
-      quote: null,
-    });
+    set({ inputToken: outputToken, outputToken: inputToken, inputAmount: '', outputAmount: '', quote: null });
   },
-  
-  reset: () => set({
-    inputToken: SOL_TOKEN,
-    outputToken: null,
-    inputAmount: '',
-    quote: null,
-    isQuoteLoading: false,
-    isSwapping: false,
-  }),
 }));
 
-interface PriceState {
-  prices: Record<string, number>;
-  lastUpdate: number;
-  setPrices: (prices: Record<string, number>) => void;
-  getPrice: (mint: string) => number | null;
-}
-
-export const usePriceStore = create<PriceState>((set, get) => ({
-  prices: {},
-  lastUpdate: 0,
-  
-  setPrices: (prices) => set({ 
-    prices: { ...get().prices, ...prices }, 
-    lastUpdate: Date.now() 
-  }),
-  
-  getPrice: (mint) => get().prices[mint] ?? null,
-}));
-
-interface UserState {
-  points: UserPoints | null;
-  strategies: Strategy[];
-  isLoading: boolean;
-  
-  setPoints: (points: UserPoints | null) => void;
-  setStrategies: (strategies: Strategy[]) => void;
-  addStrategy: (strategy: Strategy) => void;
-  updateStrategy: (id: string, updates: Partial<Strategy>) => void;
-  removeStrategy: (id: string) => void;
-  setIsLoading: (loading: boolean) => void;
-}
-
-export const useUserStore = create<UserState>((set, get) => ({
-  points: null,
-  strategies: [],
-  isLoading: false,
-
-  setPoints: (points) => set({ points }),
-  setStrategies: (strategies) => set({ strategies }),
-  
-  addStrategy: (strategy) => set({ 
-    strategies: [strategy, ...get().strategies] 
-  }),
-  
-  updateStrategy: (id, updates) => set({
-    strategies: get().strategies.map(s => 
-      s.id === id ? { ...s, ...updates } : s
-    ),
-  }),
-  
-  removeStrategy: (id) => set({
-    strategies: get().strategies.filter(s => s.id !== id),
-  }),
-  
-  setIsLoading: (loading) => set({ isLoading: loading }),
-}));
-
-interface UIState {
-  activeTab: 'trade' | 'strategies' | 'leaderboard';
-  isTokenSearchOpen: boolean;
-  tokenSearchMode: 'input' | 'output';
-  isSettingsOpen: boolean;
-  
-  setActiveTab: (tab: 'trade' | 'strategies' | 'leaderboard') => void;
-  openTokenSearch: (mode: 'input' | 'output') => void;
+interface UIStore {
+  activeTab: string;
+  tokenSearchOpen: boolean;
+  tokenSearchType: 'input' | 'output';
+  setActiveTab: (t: string) => void;
+  openTokenSearch: (type: 'input' | 'output') => void;
   closeTokenSearch: () => void;
-  setIsSettingsOpen: (open: boolean) => void;
 }
 
-export const useUIStore = create<UIState>((set) => ({
-  activeTab: 'trade',
-  isTokenSearchOpen: false,
-  tokenSearchMode: 'input',
-  isSettingsOpen: false,
-
-  setActiveTab: (tab) => set({ activeTab: tab }),
-  openTokenSearch: (mode) => set({ isTokenSearchOpen: true, tokenSearchMode: mode }),
-  closeTokenSearch: () => set({ isTokenSearchOpen: false }),
-  setIsSettingsOpen: (open) => set({ isSettingsOpen: open }),
+export const useUIStore = create<UIStore>((set) => ({
+  activeTab: 'swap',
+  tokenSearchOpen: false,
+  tokenSearchType: 'input',
+  setActiveTab: (activeTab) => set({ activeTab }),
+  openTokenSearch: (tokenSearchType) => set({ tokenSearchOpen: true, tokenSearchType }),
+  closeTokenSearch: () => set({ tokenSearchOpen: false }),
 }));
