@@ -2,24 +2,7 @@
 import { useEffect, useRef } from 'react';
 import { usePriceStore, useTrendingStore } from '../lib/store';
 
-// CoinGecko IDs for tracked tokens
-const COINGECKO_IDS: Record<string, string> = {
-    'So11111111111111111111111111111111111111112': 'solana',
-    'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v': 'usd-coin',
-    'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN': 'jupiter-exchange-solana',
-    'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263': 'bonk',
-    'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB': 'tether',
-    'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So': 'msol',
-    '7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj': 'lido-staked-sol',
-    'HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3': 'pyth-network',
-    'orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE': 'orca',
-    'RLBxxFkseAZ4RgJH3Sqn8jXxhmGoz9jWxDNJMh8pL7a': 'raydium',
-    'jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL': 'jito-governance-token',
-    'WENWENvqqNya429ubCdR81ZmD69brwQaaBYY6p3LCpk': 'wen-4',
-    'J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn': 'jito-staked-sol',
-};
-
-
+// Use Jupiter API for prices (no CORS issues, no rate limits)
 export function useLivePrices(interval = 10000) {
     const { setPrices, setLoading } = usePriceStore();
     const ref = useRef<NodeJS.Timeout>();
@@ -27,26 +10,34 @@ export function useLivePrices(interval = 10000) {
     useEffect(() => {
         const fetchPrices = async () => {
             try {
-                const ids = Object.values(COINGECKO_IDS).join(',');
-                const res = await fetch(
-                    `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`
-                );
+                // Jupiter Price API - free and no CORS issues
+                const mints = [
+                    'So11111111111111111111111111111111111111112', // SOL
+                    'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
+                    'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN', // JUP
+                    'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK
+                    'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', // USDT
+                    'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So', // mSOL
+                    'J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn', // JitoSOL
+                ];
+
+                const res = await fetch(`https://price.jup.ag/v6/price?ids=${mints.join(',')}`);
                 const data = await res.json();
 
                 const prices: Record<string, { price: number; change24h: number }> = {};
 
-                for (const [mint, geckoId] of Object.entries(COINGECKO_IDS)) {
-                    if (data[geckoId]) {
+                for (const mint of mints) {
+                    if (data.data && data.data[mint]) {
                         prices[mint] = {
-                            price: data[geckoId].usd || 0,
-                            change24h: data[geckoId].usd_24h_change || 0,
+                            price: data.data[mint].price || 0,
+                            change24h: 0, // Jupiter doesn't provide 24h change in this endpoint
                         };
                     }
                 }
 
                 setPrices(prices);
             } catch (e) {
-                console.error('CoinGecko price fetch error:', e);
+                console.error('Jupiter price fetch error:', e);
             }
             setLoading(false);
         };
@@ -64,27 +55,50 @@ export function useTrendingTokens(interval = 60000) {
     useEffect(() => {
         const fetchTrending = async () => {
             try {
-                // CoinGecko trending for Solana ecosystem
-                const res = await fetch(
-                    'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=solana-ecosystem&order=volume_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h'
-                );
-                const data = await res.json();
+                // Jupiter Verified Token List - Top tokens by volume
+                const res = await fetch('https://token.jup.ag/strict');
+                const allTokens = await res.json();
 
-                const tokens = data.map((token: any, index: number) => ({
-                    rank: index + 1,
-                    id: token.id,
-                    symbol: token.symbol?.toUpperCase(),
-                    name: token.name,
-                    logoURI: token.image,
-                    price: token.current_price || 0,
-                    change24h: token.price_change_percentage_24h || 0,
-                    volume24h: token.total_volume || 0,
-                    marketCap: token.market_cap || 0,
-                }));
+                // Get top 10 popular tokens
+                const popularMints = [
+                    'So11111111111111111111111111111111111111112', // SOL
+                    'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
+                    'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN', // JUP
+                    'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK
+                    'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So', // mSOL
+                    'J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn', // JitoSOL
+                    'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', // USDT
+                    'RLBxxFkseAZ4RgJH3Sqn8jXxhmGoz9jWxDNJMh8pL7a', // RAY
+                    'orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE', // ORCA
+                    'HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3', // PYTH
+                ];
+
+                // Get prices for these tokens
+                const priceRes = await fetch(`https://price.jup.ag/v6/price?ids=${popularMints.join(',')}`);
+                const priceData = await priceRes.json();
+
+                const tokens = popularMints.map((mint, index) => {
+                    const tokenInfo = allTokens.find((t: any) => t.address === mint);
+                    const price = priceData.data?.[mint]?.price || 0;
+
+                    return {
+                        rank: index + 1,
+                        id: mint,
+                        address: mint,
+                        symbol: tokenInfo?.symbol || 'UNKNOWN',
+                        name: tokenInfo?.name || 'Unknown Token',
+                        logoURI: tokenInfo?.logoURI || 'https://via.placeholder.com/28',
+                        decimals: tokenInfo?.decimals || 9,
+                        price: price,
+                        change24h: 0, // Jupiter price API doesn't provide 24h change
+                        volume24h: 0,
+                        marketCap: 0,
+                    };
+                });
 
                 setTokens(tokens);
             } catch (e) {
-                console.error('CoinGecko trending fetch error:', e);
+                console.error('Jupiter trending fetch error:', e);
             }
             setLoading(false);
         };
