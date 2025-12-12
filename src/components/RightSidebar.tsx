@@ -24,14 +24,14 @@ export const RightSidebar = () => {
     };
 
     return (
-        <aside className="w-72 space-y-4">
+        <div className="space-y-4">
             {/* Trending Solana Tokens */}
             <div className="bg-[#131318] border border-[#25252b] rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                         <span className="text-orange-500">🔥</span>
                         <span className="text-sm font-medium text-white">Trending Solana</span>
-                        {!isLoading && <span className="w-1.5 h-1.5 rounded-full bg-[#c7f284] animate-pulse" />}
+                        {!isLoading && <span className="w-1.5 h-1.5 rounded-full bg-[#00d4aa] animate-pulse" />}
                     </div>
                     <span className="text-sm text-[#9ca3af]">More →</span>
                 </div>
@@ -63,7 +63,7 @@ export const RightSidebar = () => {
                                         <div className="flex items-center gap-2">
                                             <span className="text-sm font-medium text-white">{token.symbol}</span>
                                             <span
-                                                className={`text-xs ${token.change24h >= 0 ? 'text-[#c7f284]' : 'text-[#ff6b6b]'
+                                                className={`text-xs ${token.change24h >= 0 ? 'text-[#00d4aa]' : 'text-[#ff6b6b]'
                                                     }`}
                                             >
                                                 {fmtChg(token.change24h)}
@@ -106,8 +106,8 @@ export const RightSidebar = () => {
                                 </div>
                                 <div
                                     className={`text-sm ${prices['So11111111111111111111111111111111111111112'].change24h >= 0
-                                            ? 'text-[#c7f284]'
-                                            : 'text-[#ff6b6b]'
+                                        ? 'text-[#00d4aa]'
+                                        : 'text-[#ff6b6b]'
                                         }`}
                                 >
                                     {fmtChg(prices['So11111111111111111111111111111111111111112'].change24h)}
@@ -119,6 +119,6 @@ export const RightSidebar = () => {
                     </div>
                 </div>
             </div>
-        </aside>
+        </div>
     );
 };

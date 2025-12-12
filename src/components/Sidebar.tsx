@@ -4,7 +4,7 @@ const navItems = [
     { id: 'swap', label: 'Swap', icon: '↔️' },
     { id: 'stake', label: 'Stake', icon: '🏛️', badge: 'New' },
     { id: 'lend', label: 'Lend', icon: '💰' },
-    { id: 'airdrop', label: 'Airdrop Checker', icon: '🎁' },
+    { id: 'strategies', label: 'Strategies', icon: '📈' },
     { id: 'positions', label: 'Positions / PnL', icon: '📊' },
 ];
 
@@ -15,7 +15,7 @@ export const Sidebar = () => {
         <aside className="fixed left-0 top-0 h-screen w-60 bg-[#0b0b0e] border-r border-[#25252b] flex flex-col z-40">
             <div className="p-4 border-b border-[#25252b]">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-[#c7f284] flex items-center justify-center text-[#0b0b0e] font-bold">V</div>
+                    <div className="w-8 h-8 rounded-full bg-[#00d4aa] flex items-center justify-center text-[#0b0b0e] font-bold">V</div>
                     <span className="text-xl font-bold text-white">Velocity</span>
                 </div>
             </div>
@@ -30,10 +30,31 @@ export const Sidebar = () => {
                     >
                         <span>{item.icon}</span>
                         <span className="flex-1 text-left text-sm">{item.label}</span>
-                        {item.badge && <span className="px-2 py-0.5 text-[10px] rounded-full bg-[#c7f284] text-[#0b0b0e] font-bold">{item.badge}</span>}
+                        {item.badge && <span className="px-2 py-0.5 text-[10px] rounded-full bg-[#00d4aa] text-[#0b0b0e] font-bold">{item.badge}</span>}
                     </button>
                 ))}
             </nav>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-[#25252b]">
+                <div className="space-y-3 text-sm">
+                    <a href="#" className="flex items-center gap-2 text-[#6b7280] hover:text-white transition-colors">
+                        <span>📱</span> Download App
+                    </a>
+                    <a href="#" className="flex items-center gap-2 text-[#6b7280] hover:text-white transition-colors">
+                        <span>💬</span> Help Center
+                    </a>
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#6b7280] hover:text-white transition-colors">
+                        <span>🐦</span> Twitter
+                    </a>
+                    <a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#6b7280] hover:text-white transition-colors">
+                        <span>💜</span> Discord
+                    </a>
+                </div>
+                <div className="mt-4 pt-3 border-t border-[#25252b] text-xs text-[#6b7280]">
+                    © 2024 Velocity Trade
+                </div>
+            </div>
         </aside>
     );
 };

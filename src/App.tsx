@@ -17,14 +17,21 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0b0b0e]">
+      {/* Left Sidebar */}
       <Sidebar />
-      <div className="ml-60">
+
+      {/* Right Sidebar - Fixed to right edge */}
+      <div className="fixed right-0 top-14 h-[calc(100vh-56px)] w-72 border-l border-[#25252b] p-4 overflow-y-auto">
+        <RightSidebar />
+      </div>
+
+      {/* Main content - between sidebars */}
+      <div className="ml-60 mr-72">
         <Header />
         <main className="p-8">
           {activeTab === 'swap' && (
-            <div className="flex justify-center gap-8">
+            <div className="flex justify-center">
               <SwapCard />
-              <RightSidebar />
             </div>
           )}
           {activeTab !== 'swap' && (
