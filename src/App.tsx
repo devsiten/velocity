@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { SwapCard } from './components/SwapCard';
 import { RightSidebar } from './components/RightSidebar';
+import { TokenSearchModal } from './components/TokenSearchModal';
 import { useUIStore } from './lib/store';
 import { api } from './lib/api';
 
@@ -44,6 +45,9 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {/* Token Search Modal */}
+      <TokenSearchModal />
     </div>
   );
 }
