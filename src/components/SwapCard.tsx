@@ -16,8 +16,9 @@ export const SwapCard = () => {
     const [swapStatus, setSwapStatus] = useState<string | null>(null);
     const pollRef = useRef<NodeJS.Timeout>();
 
+    // Fetch quote - works even without wallet connected (for preview)
     const fetchQuote = useCallback(async () => {
-        if (!inputToken || !outputToken || !inputAmount || !publicKey || parseFloat(inputAmount) <= 0) {
+        if (!inputToken || !outputToken || !inputAmount || parseFloat(inputAmount) <= 0) {
             setQuote(null);
             setOutputAmount('');
             return;
@@ -25,25 +26,35 @@ export const SwapCard = () => {
         setQuoteLoading(true);
         try {
             const amt = Math.floor(parseFloat(inputAmount) * Math.pow(10, inputToken.decimals)).toString();
-            const q: any = await api.getQuote({ inputMint: inputToken.address, outputMint: outputToken.address, amount: amt, slippageBps: 100, userPublicKey: publicKey.toBase58() });
+            // Use a dummy public key for quote preview if not connected
+            const userKey = publicKey?.toBase58() || '11111111111111111111111111111111';
+            const q: any = await api.getQuote({
+                inputMint: inputToken.address,
+                outputMint: outputToken.address,
+                amount: amt,
+                slippageBps: 100,
+                userPublicKey: userKey
+            });
             setQuote(q);
             setOutputAmount((Number(q.outAmount) / Math.pow(10, outputToken.decimals)).toFixed(6));
         } catch (e) {
-            console.error(e);
+            console.error('Quote error:', e);
             setQuote(null);
             setOutputAmount('');
         }
         setQuoteLoading(false);
     }, [inputToken, outputToken, inputAmount, publicKey, setQuote, setOutputAmount, setQuoteLoading]);
 
+    // Debounced quote fetch when input changes
     useEffect(() => {
         const t = setTimeout(fetchQuote, 500);
         return () => clearTimeout(t);
     }, [fetchQuote]);
 
+    // Poll for quote updates
     useEffect(() => {
         if (!inputAmount || parseFloat(inputAmount) <= 0) return;
-        pollRef.current = setInterval(fetchQuote, 2000);
+        pollRef.current = setInterval(fetchQuote, 5000);
         return () => clearInterval(pollRef.current);
     }, [inputAmount, fetchQuote]);
 
@@ -54,7 +65,6 @@ export const SwapCard = () => {
         setSwapStatus('Building transaction...');
 
         try {
-            // 1. Build swap transaction
             const { swapTransaction, tradeId } = await api.buildSwap(
                 quote,
                 publicKey.toBase58(),
@@ -64,14 +74,12 @@ export const SwapCard = () => {
 
             setSwapStatus('Waiting for signature...');
 
-            // 2. Deserialize and sign transaction
             const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
             const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
             const signedTransaction = await signTransaction(transaction);
 
             setSwapStatus('Sending transaction...');
 
-            // 3. Send transaction
             const connection = new Connection('https://api.mainnet-beta.solana.com');
             const rawTransaction = signedTransaction.serialize();
             const txSignature = await connection.sendRawTransaction(rawTransaction, {
@@ -80,11 +88,8 @@ export const SwapCard = () => {
             });
 
             setSwapStatus('Confirming...');
-
-            // 4. Confirm transaction
             await connection.confirmTransaction(txSignature, 'confirmed');
 
-            // 5. Notify backend of confirmation
             const { pointsEarned } = await api.confirmSwap(tradeId, txSignature);
 
             setSwapStatus(`Success! +${pointsEarned} points`);
@@ -92,7 +97,6 @@ export const SwapCard = () => {
             setOutputAmount('');
             setQuote(null);
 
-            // Clear status after 3 seconds
             setTimeout(() => setSwapStatus(null), 3000);
 
         } catch (error) {
@@ -118,15 +122,12 @@ export const SwapCard = () => {
 
     return (
         <div className="w-full max-w-[480px]">
-            {/* Header with title */}
             <div className="text-center mb-6">
                 <h1 className="text-2xl font-bold text-white">Lightning Fast Solana Trading</h1>
                 <p className="text-sm text-[#6b7280] mt-2">Trade at your own risk. Always verify token contracts.</p>
             </div>
 
-            {/* Swap Card */}
             <div className="bg-[#131318] border border-[#25252b] rounded-2xl p-4">
-                {/* Header */}
                 <div className="flex items-center justify-between px-2 py-3 mb-2">
                     <h2 className="text-lg font-semibold text-white">Swap</h2>
                     <div className="flex items-center gap-2">
@@ -137,7 +138,6 @@ export const SwapCard = () => {
                     </div>
                 </div>
 
-                {/* Selling section */}
                 <div className="bg-[#1b1b1f] rounded-xl p-5">
                     <div className="text-sm text-[#6b7280] mb-3">Selling</div>
                     <div className="flex items-center justify-between">
@@ -160,14 +160,12 @@ export const SwapCard = () => {
                     </div>
                 </div>
 
-                {/* Swap button */}
                 <div className="flex justify-center -my-3 z-10 relative">
                     <button onClick={swapTokens} disabled={isSwapping} className="p-3 bg-[#131318] border border-[#25252b] rounded-xl hover:bg-[#1b1b1f] transition-colors disabled:opacity-50">
                         <span className="text-lg">↕️</span>
                     </button>
                 </div>
 
-                {/* Buying section */}
                 <div className="bg-[#1b1b1f] rounded-xl p-5">
                     <div className="text-sm text-[#6b7280] mb-3">Buying</div>
                     <div className="flex items-center justify-between">
@@ -185,7 +183,6 @@ export const SwapCard = () => {
                     </div>
                 </div>
 
-                {/* Quote details */}
                 {quote && (
                     <div className="px-2 py-3 text-sm space-y-2 mt-2">
                         <div className="flex justify-between">
@@ -199,14 +196,12 @@ export const SwapCard = () => {
                     </div>
                 )}
 
-                {/* Status message */}
                 {swapStatus && (
                     <div className={`px-4 py-2 text-center text-sm ${swapStatus.includes('Error') ? 'text-[#ff6b6b]' : swapStatus.includes('Success') ? 'text-[#00d4aa]' : 'text-[#6b7280]'}`}>
                         {swapStatus}
                     </div>
                 )}
 
-                {/* Swap button */}
                 <div className="mt-4">
                     {connected ? (
                         <button
