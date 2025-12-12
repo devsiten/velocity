@@ -38,9 +38,7 @@ export const Sidebar = () => {
             {/* Footer */}
             <div className="p-4 border-t border-[#25252b]">
                 <div className="space-y-3 text-sm">
-                    <a href="#" className="flex items-center gap-2 text-[#6b7280] hover:text-white transition-colors">
-                        <span>📱</span> Download App
-                    </a>
+
                     <a href="#" className="flex items-center gap-2 text-[#6b7280] hover:text-white transition-colors">
                         <span>💬</span> Help Center
                     </a>
@@ -52,7 +50,7 @@ export const Sidebar = () => {
                     </a>
                 </div>
                 <div className="mt-4 pt-3 border-t border-[#25252b] text-xs text-[#6b7280]">
-                    © 2024 Velocity Trade
+                    © 2025 Velocity Trade. All Rights Reserved.
                 </div>
             </div>
         </aside>
