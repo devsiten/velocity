@@ -1,6 +1,6 @@
 // API Client for Velocity Backend
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://velocity-api.devsiten.workers.dev';
+const API_BASE = 'https://velocity-api.devsiten.workers.dev';
 
 class ApiClient {
   private publicKey: string | null = null;
