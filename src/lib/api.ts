@@ -139,6 +139,64 @@ class ApiClient {
     }>(`/api/v1/points/leaderboard?limit=${limit}&weekly=${weekly}`);
   }
 
+  // ==================== STAKING API ====================
+
+  async getStakingPools() {
+    return this.request<any[]>('/api/v1/stake/pools');
+  }
+
+  async buildStakeTransaction(pool: string, amount: string) {
+    return this.request<{ swapTransaction: string; quote: any; pool: any }>('/api/v1/stake/stake', {
+      method: 'POST',
+      body: JSON.stringify({ pool, amount }),
+    });
+  }
+
+  async buildUnstakeTransaction(pool: string, amount: string) {
+    return this.request<{ swapTransaction: string; quote: any; pool: any }>('/api/v1/stake/unstake', {
+      method: 'POST',
+      body: JSON.stringify({ pool, amount }),
+    });
+  }
+
+  // ==================== LENDING API ====================
+
+  async getLendingPools() {
+    return this.request<any[]>('/api/v1/defi/lend/pools');
+  }
+
+  async getLendingPositions() {
+    return this.request<any>('/api/v1/defi/lend/positions');
+  }
+
+  async buildSupplyTransaction(pool: string, amount: string) {
+    return this.request<any>('/api/v1/defi/lend/supply', {
+      method: 'POST',
+      body: JSON.stringify({ pool, amount }),
+    });
+  }
+
+  async buildWithdrawTransaction(pool: string, amount: string) {
+    return this.request<any>('/api/v1/defi/lend/withdraw', {
+      method: 'POST',
+      body: JSON.stringify({ pool, amount }),
+    });
+  }
+
+  async buildBorrowTransaction(pool: string, amount: string) {
+    return this.request<any>('/api/v1/defi/borrow', {
+      method: 'POST',
+      body: JSON.stringify({ pool, amount }),
+    });
+  }
+
+  async buildRepayTransaction(pool: string, amount: string) {
+    return this.request<any>('/api/v1/defi/repay', {
+      method: 'POST',
+      body: JSON.stringify({ pool, amount }),
+    });
+  }
+
   // ==================== EXTERNAL APIs ====================
 
   async getTrending() {
