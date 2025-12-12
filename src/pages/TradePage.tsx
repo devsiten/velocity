@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import { useTradeStore } from '../lib/store';
 import { useQuote } from '../hooks/useQuote';
-import { TokenInput } from '../components/TokenInput';
 import { SwapButton } from '../components/SwapButton';
 import { SlippageSelector } from '../components/SlippageSelector';
 import { QuoteDetails } from '../components/QuoteDetails';
