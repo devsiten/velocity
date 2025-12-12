@@ -102,7 +102,12 @@ export const SwapCard = () => {
 
             setSwapStatus('Waiting for signature...');
 
-            const swapTransactionBuf = Buffer.from(swapData.data.swapTransaction, 'base64');
+            const base64 = swapData.data.swapTransaction;
+            const binaryString = atob(base64);
+            const swapTransactionBuf = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                swapTransactionBuf[i] = binaryString.charCodeAt(i);
+            }
             const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
             const signedTransaction = await signTransaction(transaction);
 
