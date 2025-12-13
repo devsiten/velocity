@@ -6,6 +6,8 @@ import { SwapCard } from './components/SwapCard';
 import { TokenSearchModal } from './components/TokenSearchModal';
 import { StakePage } from './components/StakePage';
 import { LendPage } from './components/LendPage';
+import { BorrowPage } from './components/BorrowPage';
+import { ProfilePage } from './components/ProfilePage';
 import { useUIStore } from './lib/store';
 import { api } from './lib/api';
 
@@ -29,6 +31,10 @@ export default function App() {
         return <StakePage />;
       case 'lend':
         return <LendPage />;
+      case 'borrow':
+        return <BorrowPage />;
+      case 'positions':
+        return <ProfilePage />;
       default:
         return (
           <div className="flex items-center justify-center h-96">
@@ -60,4 +66,3 @@ export default function App() {
     </div>
   );
 }
-

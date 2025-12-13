@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { useTradeStore, usePriceStore, useUIStore } from '../lib/store';
+import { useTradeStore, useUIStore } from '../lib/store';
 import { Connection, VersionedTransaction } from '@solana/web3.js';
 
 const API_BASE = 'https://velocity-api.devsiten.workers.dev';
@@ -10,7 +10,6 @@ export const SwapCard = () => {
     const { connected, publicKey, signTransaction } = useWallet();
     const { setVisible } = useWalletModal();
     const { openTokenSearch } = useUIStore();
-    const { prices } = usePriceStore();
     const { inputToken, outputToken, inputAmount, outputAmount, quote, isQuoteLoading, setInputAmount, setOutputAmount, setQuote, setQuoteLoading, swapTokens } = useTradeStore();
 
     const [isSwapping, setIsSwapping] = useState(false);
@@ -156,10 +155,7 @@ export const SwapCard = () => {
         setIsSwapping(false);
     };
 
-    const inPrice = prices[inputToken?.address];
-    const outPrice = prices[outputToken?.address];
-    const inUsd = inputAmount && inPrice ? (parseFloat(inputAmount) * inPrice.price).toFixed(2) : '0';
-    const outUsd = outputAmount && outPrice ? (parseFloat(outputAmount) * outPrice.price).toFixed(2) : '0';
+
 
     const getButtonText = () => {
         if (isSwapping) return swapStatus || 'Processing...';
@@ -172,7 +168,6 @@ export const SwapCard = () => {
         <div className="w-full max-w-[480px]">
             <div className="text-center mb-6">
                 <h1 className="text-2xl font-bold text-white">Lightning Fast Solana Trading</h1>
-                <p className="text-sm text-[#6b7280] mt-2">Trade at your own risk. Always verify token contracts.</p>
             </div>
 
             <div className="bg-[#131318] border border-[#25252b] rounded-2xl p-4">
@@ -203,7 +198,7 @@ export const SwapCard = () => {
                                 className="bg-transparent text-right text-4xl font-semibold text-white placeholder-[#6b7280] focus:outline-none w-48"
                                 disabled={isSwapping}
                             />
-                            <div className="text-sm text-[#6b7280] mt-1">${inUsd}</div>
+
                         </div>
                     </div>
                 </div>
@@ -226,7 +221,7 @@ export const SwapCard = () => {
                             <div className="text-4xl font-semibold text-white w-48 text-right">
                                 {isQuoteLoading ? <span className="text-[#6b7280] animate-pulse">...</span> : outputAmount || <span className="text-[#6b7280]">0.00</span>}
                             </div>
-                            <div className="text-sm text-[#6b7280] mt-1">${outUsd}</div>
+
                         </div>
                     </div>
                 </div>

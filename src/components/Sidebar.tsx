@@ -4,8 +4,9 @@ const navItems = [
     { id: 'swap', label: 'Swap', icon: '↔️' },
     { id: 'stake', label: 'Stake', icon: '🏛️', badge: 'New' },
     { id: 'lend', label: 'Lend', icon: '💰' },
+    { id: 'borrow', label: 'Borrow', icon: '🏦' },
     { id: 'strategies', label: 'Strategies', icon: '📈' },
-    { id: 'positions', label: 'Positions / PnL', icon: '📊' },
+    { id: 'positions', label: 'Profile', icon: '👤' },
 ];
 
 export const Sidebar = () => {
@@ -38,7 +39,6 @@ export const Sidebar = () => {
             {/* Footer */}
             <div className="p-4 border-t border-[#25252b]">
                 <div className="space-y-3 text-sm">
-
                     <a href="#" className="flex items-center gap-2 text-[#6b7280] hover:text-white transition-colors">
                         <span>💬</span> Help Center
                     </a>
