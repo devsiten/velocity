@@ -78,7 +78,8 @@ export const SwapCard = () => {
         setSwapStatus('Building transaction...');
 
         try {
-            // Build swap via backend
+            const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=e495db18-fb79-4c7b-9750-5bf08d316aaf');
+
             const swapRes = await fetch(`${API_BASE}/api/v1/trade/swap`, {
                 method: 'POST',
                 headers: {
@@ -99,62 +100,56 @@ export const SwapCard = () => {
                 throw new Error(swapData.error || 'Swap build failed');
             }
 
-            setSwapStatus('Waiting for signature...');
+            setSwapStatus('Please sign the transaction...');
 
-            const base64 = swapData.data.swapTransaction;
-            const binaryString = atob(base64);
-            const swapTransactionBuf = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-                swapTransactionBuf[i] = binaryString.charCodeAt(i);
-            }
+            const swapTransactionBuf = Buffer.from(swapData.data.swapTransaction, 'base64');
             const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
-            const signedTransaction = await signTransaction(transaction);
+
+            const signed = await signTransaction(transaction);
 
             setSwapStatus('Sending transaction...');
 
-            const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=e495db18-fb79-4c7b-9750-5bf08d316aaf');
-            const rawTransaction = signedTransaction.serialize();
-            const txSignature = await connection.sendRawTransaction(rawTransaction, {
+            const rawTransaction = signed.serialize();
+            const txid = await connection.sendRawTransaction(rawTransaction, {
                 skipPreflight: true,
                 maxRetries: 2,
             });
 
-            setSwapStatus('Confirming...');
-            await connection.confirmTransaction(txSignature, 'confirmed');
+            setSwapStatus('Confirming transaction...');
 
-            // Confirm with backend for points
-            try {
-                await fetch(`${API_BASE}/api/v1/trade/confirm`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Public-Key': publicKey.toBase58(),
-                    },
-                    body: JSON.stringify({
-                        tradeId: swapData.data.tradeId,
-                        txSignature,
-                    }),
-                });
-            } catch (e) {
-                // Points confirmation failed, but swap succeeded
-            }
+            const latestBlockhash = await connection.getLatestBlockhash();
+            await connection.confirmTransaction({
+                blockhash: latestBlockhash.blockhash,
+                lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+                signature: txid,
+            });
 
-            setSwapStatus(`Success! TX: ${txSignature.slice(0, 8)}...`);
+            await fetch(`${API_BASE}/api/v1/trade/confirm`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Public-Key': publicKey.toBase58(),
+                },
+                body: JSON.stringify({
+                    tradeId: swapData.data.tradeId,
+                    txSignature: txid,
+                }),
+            });
+
+            setSwapStatus(`Success! TX: ${txid.slice(0, 8)}...`);
             setInputAmount('');
             setOutputAmount('');
             setQuote(null);
 
             setTimeout(() => setSwapStatus(null), 5000);
-
-        } catch (error) {
-            console.error('Swap failed:', error);
-            setSwapStatus(`Error: ${error instanceof Error ? error.message : 'Swap failed'}`);
+        } catch (e: any) {
+            console.error('Swap error:', e);
+            setSwapStatus(`Error: ${e.message || 'Swap failed'}`);
             setTimeout(() => setSwapStatus(null), 5000);
         }
 
         setIsSwapping(false);
     };
-
 
 
     const getButtonText = () => {
@@ -240,7 +235,7 @@ export const SwapCard = () => {
                 )}
 
                 {swapStatus && (
-                    <div className={`px-4 py-2 text-center text-sm ${swapStatus.includes('Error') ? 'text-[#ff6b6b]' : swapStatus.includes('Success') ? 'text-[#00d4aa]' : 'text-[#6b7280]'}`}>
+                    <div className={`px-4 py-2 text-center text-sm ${swapStatus.includes('Error') ? 'text-red-500' : swapStatus.includes('Success') ? 'text-[#14F195]' : 'text-gray-500'}`}>
                         {swapStatus}
                     </div>
                 )}
