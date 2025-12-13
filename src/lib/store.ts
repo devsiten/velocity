@@ -22,19 +22,7 @@ export const usePriceStore = create<PriceStore>((set) => ({
   setLoading: (isLoading) => set({ isLoading }),
 }));
 
-interface TrendingStore {
-  tokens: any[];
-  isLoading: boolean;
-  setTokens: (t: any[]) => void;
-  setLoading: (l: boolean) => void;
-}
 
-export const useTrendingStore = create<TrendingStore>((set) => ({
-  tokens: [],
-  isLoading: true,
-  setTokens: (tokens) => set({ tokens, isLoading: false }),
-  setLoading: (isLoading) => set({ isLoading }),
-}));
 
 interface TradeStore {
   inputToken: Token;

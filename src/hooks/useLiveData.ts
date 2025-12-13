@@ -1,6 +1,6 @@
 // src/hooks/useLiveData.ts
 import { useEffect, useRef } from 'react';
-import { usePriceStore, useTrendingStore } from '../lib/store';
+import { usePriceStore } from '../lib/store';
 
 const API_BASE = 'https://velocity-api.devsiten.workers.dev';
 
@@ -53,51 +53,4 @@ export function useLivePrices(interval = 10000) {
         ref.current = setInterval(fetchPrices, interval);
         return () => clearInterval(ref.current);
     }, [interval, setPrices, setLoading]);
-}
-
-export function useTrendingTokens(interval = 30000) {
-    const { setTokens, setLoading } = useTrendingStore();
-    const ref = useRef<NodeJS.Timeout>();
-
-    useEffect(() => {
-        const fetchTrending = async () => {
-            try {
-                const res = await fetch(`${API_BASE}/api/v1/trade/trending`);
-                const data = await res.json();
-                if (data.success) {
-                    // Get prices for trending tokens
-                    const mints = data.data.map((t: any) => t.address);
-                    const priceRes = await fetch(`${API_BASE}/api/v1/trade/prices`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ mints }),
-                    });
-                    const priceData = await priceRes.json();
-
-                    // Merge prices into tokens
-                    const tokensWithPrices = data.data.map((token: any) => {
-                        const priceVal = priceData.success ? priceData.data.prices[token.address] : 0;
-                        let price: number;
-                        if (typeof priceVal === 'number') {
-                            price = priceVal;
-                        } else if (typeof priceVal === 'object' && priceVal !== null) {
-                            price = priceVal.usd || priceVal.sol || 0;
-                        } else {
-                            price = 0;
-                        }
-                        return { ...token, price };
-                    });
-
-                    setTokens(tokensWithPrices);
-                }
-            } catch (e) {
-                console.error('Trending fetch error:', e);
-            }
-            setLoading(false);
-        };
-
-        fetchTrending();
-        ref.current = setInterval(fetchTrending, interval);
-        return () => clearInterval(ref.current);
-    }, [interval, setTokens, setLoading]);
 }
