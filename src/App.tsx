@@ -49,7 +49,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0b0e]">
+    <div className="min-h-screen bg-gradient-to-br from-white via-cyan-50 to-cyan-100">
       {/* Left Sidebar */}
       <Sidebar />
 
