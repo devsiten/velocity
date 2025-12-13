@@ -113,7 +113,7 @@ export const SwapCard = () => {
 
             setSwapStatus('Sending transaction...');
 
-            const connection = new Connection('https://api.mainnet-beta.solana.com');
+            const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=e495db18-fb79-4c7b-9750-5bf08d316aaf');
             const rawTransaction = signedTransaction.serialize();
             const txSignature = await connection.sendRawTransaction(rawTransaction, {
                 skipPreflight: true,
