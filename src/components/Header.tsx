@@ -16,7 +16,7 @@ export const Header = () => {
   const short = (a: string) => `${a.slice(0, 4)}...${a.slice(-4)}`;
 
   return (
-    <header className="h-14 bg-gradient-to-r from-[#7C3AED] to-[#10B981] flex items-center justify-between px-4">
+    <header className="h-14 bg-gradient-to-r from-[#9945FF] to-[#14F195] flex items-center justify-between px-4">
       {/* Left: Logo */}
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#9945FF] font-bold">V</div>

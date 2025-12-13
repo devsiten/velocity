@@ -13,7 +13,7 @@ export const Sidebar = () => {
     const { activeTab, setActiveTab } = useUIStore();
 
     return (
-        <aside className="fixed left-0 top-0 h-screen w-60 bg-gradient-to-b from-[#7C3AED] to-[#10B981] flex flex-col z-40">
+        <aside className="fixed left-0 top-0 h-screen w-60 bg-gradient-to-b from-[#9945FF] to-[#14F195] flex flex-col z-40">
             <div className="p-4 border-b border-white/20">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#9945FF] font-bold">V</div>
