@@ -23,3 +23,7 @@ npm-debug.log*
 
 # Wrangler
 .wrangler/
+
+# Backend worker (separate repo)
+velocity-api-worker/
+velocityback-temp/
