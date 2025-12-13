@@ -29,8 +29,17 @@ export function useLivePrices(interval = 10000) {
                 if (data.success) {
                     // Convert prices object to store format
                     const formatted: Record<string, { price: number; change24h: number }> = {};
-                    for (const [mint, price] of Object.entries(data.data.prices)) {
-                        formatted[mint] = { price: price as number, change24h: 0 };
+                    for (const [mint, priceData] of Object.entries(data.data.prices)) {
+                        // Handle both number and { sol, usd } formats
+                        let price: number;
+                        if (typeof priceData === 'number') {
+                            price = priceData;
+                        } else if (typeof priceData === 'object' && priceData !== null) {
+                            price = (priceData as any).usd || (priceData as any).sol || 0;
+                        } else {
+                            price = 0;
+                        }
+                        formatted[mint] = { price, change24h: 0 };
                     }
                     setPrices(formatted);
                 }
@@ -66,10 +75,18 @@ export function useTrendingTokens(interval = 30000) {
                     const priceData = await priceRes.json();
 
                     // Merge prices into tokens
-                    const tokensWithPrices = data.data.map((token: any) => ({
-                        ...token,
-                        price: priceData.success ? priceData.data.prices[token.address] || 0 : 0,
-                    }));
+                    const tokensWithPrices = data.data.map((token: any) => {
+                        const priceVal = priceData.success ? priceData.data.prices[token.address] : 0;
+                        let price: number;
+                        if (typeof priceVal === 'number') {
+                            price = priceVal;
+                        } else if (typeof priceVal === 'object' && priceVal !== null) {
+                            price = priceVal.usd || priceVal.sol || 0;
+                        } else {
+                            price = 0;
+                        }
+                        return { ...token, price };
+                    });
 
                     setTokens(tokensWithPrices);
                 }
