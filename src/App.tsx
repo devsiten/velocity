@@ -3,7 +3,6 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { SwapCard } from './components/SwapCard';
-import { RightSidebar } from './components/RightSidebar';
 import { TokenSearchModal } from './components/TokenSearchModal';
 import { StakePage } from './components/StakePage';
 import { LendPage } from './components/LendPage';
@@ -48,13 +47,8 @@ export default function App() {
       {/* Left Sidebar */}
       <Sidebar />
 
-      {/* Right Sidebar - Fixed to right edge */}
-      <div className="fixed right-0 top-14 h-[calc(100vh-56px)] w-72 border-l border-[#25252b] p-4 overflow-y-auto">
-        <RightSidebar />
-      </div>
-
-      {/* Main content - between sidebars */}
-      <div className="ml-60 mr-72">
+      {/* Main content */}
+      <div className="ml-60">
         <Header />
         <main className="p-8">
           {renderPage()}
@@ -66,3 +60,4 @@ export default function App() {
     </div>
   );
 }
+
